@@ -31,8 +31,38 @@ to the editor server. The API exposes `GET /api/health` and `GET /api/project`.
 The initial React screens render sample project data locally.
 
 The server accepts `HOST` and `PORT` environment variables, defaulting to
-`127.0.0.1` and `3000`. If you change the server address, update the editor UI's
-proxy in `apps/editor-ui/vite.config.ts`.
+`127.0.0.1` and `3000`. The editor UI accepts the `EDITOR_API_TARGET` environment
+variable for its development proxy, defaulting to `http://127.0.0.1:3000`.
+Set it to the server's URL when using a different server address. These are
+process environment variables; no shared `.env` file is needed.
+
+## Running separate development instances
+
+Keep `pnpm dev` running on its default ports and start additional instances on
+other free ports. Run each command below in a separate PowerShell terminal:
+
+```powershell
+# Engine
+pnpm --filter @ancadeba/engine dev --port 5273
+```
+
+```powershell
+# Editor server
+$env:PORT = '3100'
+pnpm --filter @ancadeba/editor-server dev
+```
+
+```powershell
+# Editor UI connected to the additional server
+$env:EDITOR_API_TARGET = 'http://127.0.0.1:3100'
+pnpm --filter @ancadeba/editor-ui dev --port 5274
+```
+
+Environment overrides apply to commands launched from those terminals. Keep the
+terminal running the default `pnpm dev` separate. The existing `strictPort`
+setting makes the React applications fail if the selected port is occupied.
+Separate instances in this checkout share source files and hot-reload when they
+change. Agent-specific instructions are recorded in `AGENTS.md`.
 
 ## Checks and production builds
 
