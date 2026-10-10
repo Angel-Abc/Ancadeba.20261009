@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { projectSchema } from './index.js'
+import { projectSchema } from '@ancadeba/schemas'
 
 describe('projectSchema', () => {
   it('normalizes valid project data', () => {

@@ -72,8 +72,10 @@ pnpm test
 pnpm build
 ```
 
-- `lint` checks JavaScript/TypeScript style and typechecks every workspace.
-- `test` runs the shared package, React rendering, and HTTP integration tests.
+- `lint` checks JavaScript/TypeScript style and typechecks every workspace and
+  the root `tests` folder.
+- `test` runs the shared package, React rendering, and HTTP integration tests
+  from `tests/apps` and `tests/packages`, mirroring the workspace layout.
 - `build` builds packages before their dependents and writes each workspace's
   production output to its own `dist` directory.
 
@@ -106,6 +108,17 @@ package name:
 ```ts
 import { projectSchema, type Project } from '@ancadeba/schemas'
 import { getProjectLabel } from '@ancadeba/utilities'
+```
+
+The utilities package also exports its container, factory types, console logger,
+logger factories, and message formatter. Applications can import these shared
+APIs directly from the package root:
+
+```ts
+import { Container, loggerFactories, type LoggerServices } from '@ancadeba/utilities'
+
+const container = new Container<LoggerServices>(loggerFactories)
+const logger = container.resolve('logger')
 ```
 
 The private `@ancadeba/source` export condition lets Vite, Vitest, TypeScript

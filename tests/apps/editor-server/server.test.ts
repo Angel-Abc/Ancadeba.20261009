@@ -2,7 +2,7 @@ import { once } from 'node:events'
 import type { AddressInfo } from 'node:net'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { projectSchema } from '@ancadeba/schemas'
-import { createEditorServer } from './server.js'
+import { createEditorServer } from '../../../apps/editor-server/src/server.js'
 
 describe('editor server', () => {
   const project = projectSchema.parse({ id: 'basic-game', name: 'Basic Game' })
