@@ -13,6 +13,7 @@
 - Set `EDITOR_API_TARGET` for the agent's editor UI to its own server URL, such as `http://127.0.0.1:3100`.
 - Scope environment overrides to agent-owned processes. Do not change default ports or write shared `.env` files for temporary instances.
 - Never stop or restart the user's development processes. Clean up only processes started by the agent.
+- Use `pnpm test:e2e` for repeatable browser checks. Playwright starts its own engine, editor UI, and API instances, refuses to reuse existing servers, and cleans up its processes. Tests live under `tests/e2e`; see the README for port overrides.
 
 ## Required Checks
 Before marking any code task as complete, ensure the following commands are run and pass:

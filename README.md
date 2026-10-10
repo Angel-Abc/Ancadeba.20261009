@@ -1,7 +1,7 @@
 # Ancadeba
 
 A pnpm workspace with two TypeScript/React applications, a small TypeScript/Node
-server, and shared schemas and utilities.
+server, and shared game runtime, schemas, and utilities packages.
 
 ## Requirements
 
@@ -22,6 +22,7 @@ pnpm dev
 | `apps/engine` | React engine application | http://localhost:5173 |
 | `apps/editor-ui` | React editor application | http://localhost:5174 |
 | `apps/editor-server` | Node HTTP API | http://127.0.0.1:3000 |
+| `packages/game-runtime` | Shared game execution package scaffold | Shared package |
 | `packages/schemas` | Zod schemas and inferred TypeScript types | Shared package |
 | `packages/utilities` | Shared functions consuming schema types | Shared package |
 
@@ -88,6 +89,52 @@ Preview the React builds with `pnpm --filter @ancadeba/engine preview` or
 `pnpm --filter @ancadeba/editor-ui preview`. Vite's `/api` proxy is for development;
 a production deployment must route API requests to the server separately.
 
+## Browser tests
+
+Install Playwright's Chromium browser once after installing dependencies:
+
+```sh
+pnpm test:e2e:install
+pnpm test:e2e
+```
+
+Playwright tests live in `tests/e2e/engine` and `tests/e2e/editor` and use
+`.spec.ts` filenames. Vitest continues to run `.test.ts` and `.test.tsx` files.
+`pnpm lint` also typechecks the browser tests and Playwright configuration.
+
+The runner starts its own development instances on these ports:
+
+| Instance | Playwright port | `pnpm dev` port |
+| --- | --- | --- |
+| Engine | 5273 | 5173 |
+| Editor UI | 5274 | 5174 |
+| Editor API | 3100 | 3000 |
+
+The test editor's proxy targets the test API. Playwright refuses to reuse an
+existing server and stops only the instances it starts. If a test port is
+occupied, choose another free port with `E2E_ENGINE_PORT`, `E2E_EDITOR_PORT`, or
+`E2E_SERVER_PORT`. The configuration rejects duplicate ports and the three
+reserved `pnpm dev` ports.
+
+For example, in a separate PowerShell terminal:
+
+```powershell
+$env:E2E_ENGINE_PORT = '5373'
+$env:E2E_EDITOR_PORT = '5374'
+$env:E2E_SERVER_PORT = '3200'
+pnpm test:e2e
+```
+
+Run just one application with `pnpm test:e2e --project=engine` or
+`pnpm test:e2e --project=editor`. Use `pnpm test:e2e:headed` to see the browser,
+`pnpm test:e2e:ui` for Playwright's interactive runner, and
+`pnpm test:e2e:report` to inspect the HTML report. Failed tests retain traces and
+screenshots under `test-results`; generated artifacts are ignored by Git.
+
+The initial tests cover both application screens, browser errors, and the
+editor's API proxy. Add editing and gameplay scenarios as those features become
+available.
+
 ## VS Code formatting
 
 Open the repository root in VS Code and install the recommended Prettier and
@@ -100,6 +147,12 @@ are in `.prettierrc.json`. The extension uses the project's local Prettier
 dependency after `pnpm install`.
 
 ## Sharing code
+
+The engine and editor UI also depend on `@ancadeba/game-runtime`. Its scaffold
+is ready for reusable game execution code and editor previews. Export runtime
+APIs from `packages/game-runtime/src/index.ts` and place its tests under
+`tests/packages/game-runtime`. See `packages/game-runtime/README.md` for package
+boundaries and build commands.
 
 Apps depend on `@ancadeba/schemas` and `@ancadeba/utilities` using `workspace:*`.
 Export shared APIs from each package's `src/index.ts`, then import them by

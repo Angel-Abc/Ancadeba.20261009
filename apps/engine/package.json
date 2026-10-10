@@ -10,6 +10,7 @@
     "preview": "vite preview --port 4173"
   },
   "dependencies": {
+    "@ancadeba/game-runtime": "workspace:*",
     "@ancadeba/schemas": "workspace:*",
     "@ancadeba/utilities": "workspace:*",
     "react": "^19.3.0",
