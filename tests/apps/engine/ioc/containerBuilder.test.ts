@@ -1,16 +1,17 @@
-import { expect, it } from 'vitest'
-import {
-  ConsoleLogger,
-  Container,
-  loggerFactories,
-  type LoggerServices,
-} from '@ancadeba/utilities'
-import type { IContainerBuilder } from '../../../../apps/engine/src/ioc/containerBuilder'
+import { expect, it, vi } from 'vitest'
+import { ConsoleLogger } from '@ancadeba/utilities'
+import { ContainerBuilder } from '../../../../apps/engine/src/ioc/containerBuilder'
 
 it('builds engine services using the shared utilities package', () => {
-  const builder: IContainerBuilder = {
-    build: () => new Container<LoggerServices>(loggerFactories),
-  }
+  const info = vi.spyOn(console, 'info').mockImplementation(() => {})
 
-  expect(builder.build().resolve('logger')).toBeInstanceOf(ConsoleLogger)
+  try {
+    const container = new ContainerBuilder().build()
+    const logger = container.resolve('logger')
+
+    expect(logger).toBeInstanceOf(ConsoleLogger)
+    expect(container.resolve('logger')).toBe(logger)
+  } finally {
+    info.mockRestore()
+  }
 })

@@ -1,4 +1,5 @@
 import { once } from 'node:events'
+import { request } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { projectSchema } from '@ancadeba/schemas'
@@ -19,7 +20,7 @@ describe('editor server', () => {
 
   afterEach(async () => {
     await new Promise<void>((resolve, reject) => {
-      server.close((error) => error ? reject(error) : resolve())
+      server.close((error) => (error ? reject(error) : resolve()))
     })
   })
 
@@ -45,6 +46,33 @@ describe('editor server', () => {
 
     expect(response.status).toBe(404)
     expect(await response.json()).toEqual({ error: 'Not found' })
+  })
+
+  it('rejects malformed URLs and continues serving requests', async () => {
+    const result = await new Promise<{
+      statusCode: number | undefined
+      body: string
+    }>((resolve, reject) => {
+      // fetch normalizes URLs, so send the malformed request target directly.
+      const invalidRequest = request(baseUrl, { path: '//[]/' }, (response) => {
+        let body = ''
+        response.setEncoding('utf8')
+        response.on('data', (chunk: string) => (body += chunk))
+        response.on('error', reject)
+        response.on('end', () =>
+          resolve({ statusCode: response.statusCode, body }),
+        )
+      })
+      invalidRequest.on('error', reject)
+      invalidRequest.end()
+    })
+
+    expect(result.statusCode).toBe(400)
+    expect(JSON.parse(result.body)).toEqual({ error: 'Invalid request URL' })
+
+    const response = await fetch(`${baseUrl}/api/health`)
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ status: 'ok' })
   })
 
   it('rejects unsupported HTTP methods', async () => {

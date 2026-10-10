@@ -11,8 +11,10 @@ function logMessage(
     message,
     ...args,
   )
+  const formattedCategory =
+    extraArgs.length > 0 ? category.replaceAll('%', '%%') : category
   const finalMessage = category
-    ? `[${category}] ${formattedMessage}`
+    ? `[${formattedCategory}] ${formattedMessage}`
     : formattedMessage
 
   switch (logLevel) {

@@ -12,7 +12,15 @@ export function createEditorServer(project: Project) {
       return
     }
 
-    const pathname = new URL(request.url ?? '/', 'http://localhost').pathname
+    let pathname: string
+
+    try {
+      pathname = new URL(request.url ?? '/', 'http://localhost').pathname
+    } catch {
+      response.writeHead(400)
+      response.end(JSON.stringify({ error: 'Invalid request URL' }))
+      return
+    }
 
     if (pathname === '/api/health') {
       response.end(JSON.stringify({ status: 'ok' }))
