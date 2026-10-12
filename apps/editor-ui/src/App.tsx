@@ -1,16 +1,59 @@
+import { useEffect, useState } from 'react'
 import type { Project } from '@ancadeba/schemas'
 import { getProjectLabel } from '@ancadeba/utilities'
+import type { ProjectLoader } from './projectLoader'
 
 interface AppProps {
-  project: Project
+  projectLoader: ProjectLoader
 }
 
-export function App({ project }: AppProps) {
+type ProjectState =
+  | { status: 'loading' }
+  | { status: 'ready'; project: Project }
+  | { status: 'error' }
+
+export function App({ projectLoader }: AppProps) {
+  const [state, setState] = useState<ProjectState>({ status: 'loading' })
+  const [attempt, setAttempt] = useState(0)
+
+  useEffect(() => {
+    const controller = new AbortController()
+
+    projectLoader.load(controller.signal).then(
+      (project) => {
+        if (!controller.signal.aborted) setState({ status: 'ready', project })
+      },
+      () => {
+        if (!controller.signal.aborted) setState({ status: 'error' })
+      },
+    )
+
+    return () => controller.abort()
+  }, [projectLoader, attempt])
+
+  function retry() {
+    setState({ status: 'loading' })
+    setAttempt((previous) => previous + 1)
+  }
+
   return (
     <main>
       <h1>Ancadeba Editor</h1>
-      <p>{getProjectLabel(project)}</p>
-      <p>The editor workspace is ready.</p>
+      {state.status === 'loading' && <p role='status'>Loading project…</p>}
+      {state.status === 'error' && (
+        <>
+          <p role='alert'>Could not load the project. Please try again.</p>
+          <button type='button' onClick={retry}>
+            Retry
+          </button>
+        </>
+      )}
+      {state.status === 'ready' && (
+        <>
+          <p>{getProjectLabel(state.project)}</p>
+          <p>The editor workspace is ready.</p>
+        </>
+      )}
     </main>
   )
 }

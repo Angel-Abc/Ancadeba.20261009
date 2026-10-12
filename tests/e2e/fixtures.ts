@@ -1,12 +1,17 @@
 import { expect, test as base } from '@playwright/test'
 
-export const test = base.extend({
-  page: async ({ page }, use) => {
+export const test = base.extend<{ expectedConsoleErrors: RegExp[] }>({
+  expectedConsoleErrors: [[], { option: true }],
+  page: async ({ page, expectedConsoleErrors }, use) => {
     const errors: string[] = []
 
     page.on('pageerror', (error) => errors.push(error.message))
     page.on('console', (message) => {
-      if (message.type() === 'error') errors.push(message.text())
+      if (
+        message.type() === 'error' &&
+        !expectedConsoleErrors.some((pattern) => pattern.test(message.text()))
+      )
+        errors.push(message.text())
     })
 
     await use(page)

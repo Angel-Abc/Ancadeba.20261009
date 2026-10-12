@@ -29,7 +29,9 @@ pnpm dev
 Use `pnpm dev:engine`, `pnpm dev:editor-ui`, or `pnpm dev:editor-server` to
 start one application. The editor UI development server proxies `/api` requests
 to the editor server. The API exposes `GET /api/health` and `GET /api/project`.
-The initial React screens render sample project data locally.
+The engine renders sample project data locally. The editor loads its project
+from `/api/project`, validates it with the shared project schema, and displays
+loading and error states with a retry option.
 
 The server accepts `HOST` and `PORT` environment variables, defaulting to
 `127.0.0.1` and `3000`. The editor UI accepts the `EDITOR_API_TARGET` environment

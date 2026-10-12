@@ -1,16 +1,16 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { projectSchema } from '@ancadeba/schemas'
 import { App } from './App'
+import { ApiProjectLoader } from './projectLoader'
 import './styles.css'
 
-const project = projectSchema.parse({ id: 'basic-game', name: 'Basic Game' })
+const projectLoader = new ApiProjectLoader(fetch)
 const root = document.getElementById('root')
 
 if (!root) throw new Error('Missing root element')
 
 createRoot(root).render(
   <StrictMode>
-    <App project={project} />
+    <App projectLoader={projectLoader} />
   </StrictMode>,
 )
