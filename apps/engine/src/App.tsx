@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import { projectSchema, starterGame, type Project } from '@ancadeba/schemas'
 import { getProjectLabel } from '@ancadeba/utilities'
-import { BattleRuntime } from '@ancadeba/game-runtime'
-import { BattleView } from '@ancadeba/game-ui'
+import { BattleRuntime, WorldRuntime } from '@ancadeba/game-runtime'
+import { BattleView, WorldView } from '@ancadeba/game-ui'
 
 interface AppProps {
   project: Project
@@ -10,6 +10,9 @@ interface AppProps {
 
 export function App({ project }: AppProps) {
   const [activeProject, setActiveProject] = useState(project)
+  const [mode, setMode] = useState<'world' | 'battle'>(
+    (project.game ?? starterGame).maps.length ? 'world' : 'battle',
+  )
   const [encounterId, setEncounterId] = useState(
     project.game?.startingEncounter ?? starterGame.startingEncounter,
   )
@@ -28,14 +31,22 @@ export function App({ project }: AppProps) {
       }
     }
   }, [game])
+  const worldRuntime = useMemo(
+    () =>
+      validation.runtime && validation.runtime.content.maps.length
+        ? new WorldRuntime(validation.runtime, game.startingMap)
+        : null,
+    [validation.runtime, game.startingMap],
+  )
   function loadProject(input: unknown) {
     const next = projectSchema.parse(input)
     if (!next.game) throw new Error('This project has no game content')
     new BattleRuntime(next.game)
     setActiveProject(next)
     setEncounterId(next.game.startingEncounter)
+    setMode(next.game.maps.length ? 'world' : 'battle')
     setError('')
-    setNotice('Game loaded. Choose an encounter to play.')
+    setNotice('Game loaded. Explore the world or try a battle.')
   }
   async function loadEditorProject() {
     setLoading(true)
@@ -94,11 +105,11 @@ export function App({ project }: AppProps) {
         </div>
       </header>
       <section className='player-intro'>
-        <span className='eyebrow'>THE ALDERFELL CHRONICLES</span>
+        <span className='eyebrow'>{activeProject.name.toUpperCase()}</span>
         <h2>Every turn tells a story.</h2>
         <p>
-          A small party. An untamed forest. Choose an encounter and lead your
-          adventurers through the wildwood.
+          Explore connected maps, discover encounters, and lead your party
+          through every battle.
         </p>
       </section>
       {(error || validation.error) && (
@@ -107,7 +118,36 @@ export function App({ project }: AppProps) {
         </p>
       )}
       {notice && <p role='status'>{notice}</p>}
-      {validation.runtime && (
+      <div className='player-modes' aria-label='Game modes'>
+        <button
+          className={mode === 'world' ? 'selected' : ''}
+          disabled={!worldRuntime}
+          onClick={() => setMode('world')}
+        >
+          Explore world
+        </button>
+        <button
+          className={mode === 'battle' ? 'selected' : ''}
+          onClick={() => setMode('battle')}
+        >
+          Battle sandbox
+        </button>
+      </div>
+      {worldRuntime && (
+        <div hidden={mode !== 'world'}>
+          <WorldView
+            active={mode === 'world'}
+            key={JSON.stringify(game)}
+            runtime={worldRuntime}
+            mapId={game.startingMap ?? worldRuntime.content.maps[0]!.id}
+            {...(typeof window !== 'undefined'
+              ? { storage: window.localStorage }
+              : {})}
+            saveKey={`ancadeba-world:${activeProject.id}`}
+          />
+        </div>
+      )}
+      {mode === 'battle' && validation.runtime && (
         <>
           <div className='encounter-picker'>
             <label>

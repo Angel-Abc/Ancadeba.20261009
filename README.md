@@ -1,8 +1,9 @@
 # Ancadeba
 
 A modular turn-based RPG toolkit with a playable React engine, a visual content
-editor, a local project API, and shared TypeScript packages. The editor playtest
-and player use the same deterministic battle runtime.
+editor, a local project API, and shared TypeScript packages. Explore tile maps,
+travel between areas, and enter encounters using the same deterministic battle
+runtime in the editor and player.
 
 ## Requirements
 
@@ -47,10 +48,47 @@ packs. Enable **Wildwood awakened** to try the included actor override. Use
 **Project JSON** to edit complete definitions and apply validated changes, or
 **Import project** / **Export JSON** to share a game.
 
-In the engine, choose an encounter and select an ability followed by a target.
+Open **World maps** to paint terrain, resize maps, place spawn points and
+encounters, and connect maps with portals. The terrain editor controls tile
+colors, glyphs, and walkability. Use **Playtest map** to explore a draft, or
+**Explore world** to choose a map. Set **Starting map** in Overview to choose
+the player's initial area. The starter includes Alderfell and the moss grove,
+with one-time and repeatable encounters. All map edits participate in undo/redo.
+
+In the engine, **Explore world** starts at the map's spawn. Focus the map and use
+arrow keys/WASD, the direction buttons, or adjacent tiles to move. Forest and
+water block movement; stepping on an encounter pauses movement and starts a
+battle. After victory, **Return to map** clears one-time encounters. Defeat
+returns the party to the map spawn. Portals travel to another map.
+**Save world** / **Load world** preserve position, cleared encounters, and
+in-progress battles in this browser. Enable the **River crossing** mod to make
+river tiles walkable, or import **Quiet wildwood** to override a map's encounters.
+Map and terrain content share the existing mod dependency and override rules.
+
+Use **Dialogues** to author conversation nodes, player responses, conditional
+branches, and persistent boolean flag changes. **Preview dialogue** runs the
+draft and shows its flags. In **NPCs**, create characters and assign dialogues;
+use **Place NPC** in World maps to add them to walkable tiles. In the player,
+stand beside an NPC and click them, select **Talk to…**, or press **E/Space**.
+Conversations pause movement. **Escape** or **Leave conversation** closes them.
+World saves preserve flags and active conversations, including the current node.
+The starter includes Mara and Elowen, with branches that remember conversations
+across maps. Enable **Traveller tales** to try an NPC and dialogue override.
+See [NPC and dialogue APIs](docs/npcs-dialogue.md) for formats and extension points.
+
+Use **Quests** to author dialogue acceptance, encounter and dialogue objectives,
+required counts, ordered stages, prerequisites and completion flags. The player
+**Quest journal** lists active, available and completed quests. **Save world**
+also persists quest progress, including across page reloads. Mara's request now
+starts a quest involving Elowen and a mossling encounter; completing it unlocks
+a repeatable training quest. Import **Grove challenge** for a quest-only mod.
+See [quest formats, runtime APIs and persistence](docs/quests.md).
+
+In **Battle sandbox**, choose an encounter and select an ability and target.
 Enemies act automatically. **Save battle** and **Load battle** store a snapshot
 in this browser, separately for each project and encounter. Battle saves require
-the same resolved content. Use **Load editor project** to play the latest saved
+the same combat content; editing maps does not invalidate them. Use
+**Load editor project** to play the latest saved
 editor project, or **Open game JSON** to play an exported game.
 
 Projects persist atomically to `data/project.json` at the repository root. The
@@ -64,6 +102,9 @@ development instances, give each API its own `PROJECT_FILE` when saving.
 See [the architecture and extension guide](docs/architecture.md) for runtime
 APIs, custom effect handlers, injected enemy strategies, and mod rules. Portable
 examples are in `sample-games/alderfell` and `sample-games/mods`.
+See [world maps and runtime APIs](docs/world-maps.md) for schemas, portal behavior,
+movement-rule injection, and save validation. Projects without maps still load
+and play in the battle sandbox; **Add map** creates their first world map.
 
 The server accepts `HOST` and `PORT` environment variables, defaulting to
 `127.0.0.1` and `3000`. The editor UI accepts the `EDITOR_API_TARGET` environment
@@ -167,7 +208,7 @@ screenshots under `test-results`; generated artifacts are ignored by Git.
 
 Browser tests cover editing, undo/redo, mod overrides, project import/export,
 revision conflicts, battle victories and saves, API errors, and desktop/mobile
-layouts. The test API uses `test-results/e2e-project.json` to isolate its saves
+layouts. The test API uses a unique `test-results/e2e-project-*.json` file to isolate its saves
 from the user's project. Playwright clears test artifacts at the start of a run.
 
 ## VS Code formatting

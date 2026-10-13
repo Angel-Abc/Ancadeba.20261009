@@ -3,6 +3,18 @@
 `@ancadeba/game-runtime` executes the same turn-based combat in the player and
 editor playtest. It is synchronous, deterministic, and independent of React,
 browser APIs, input, timers, HTTP, and persistent storage.
+It also exports `WorldRuntime` for tile movement, collision, portals, encounter
+handoff, and world snapshots. World execution receives an existing
+`BattleRuntime` and optional injected movement rules; combat remains a separate
+module. See [the world-map API guide](../../docs/world-maps.md).
+`DialogueRuntime` separately handles branching conversations, conditions and
+flag effects, with injectable policies. `WorldRuntime` composes it with NPC
+placement, adjacency checks, and world persistence. See
+[the dialogue guide](../../docs/npcs-dialogue.md).
+`QuestRuntime` handles event matching, activation, prerequisites, ordered/countable
+objectives and completion flags independently. `WorldRuntime` emits dialogue and
+victory events and persists quest progress. Its matcher is injected; data mods
+compose whole quest definitions. See [the quest guide](../../docs/quests.md).
 
 ```ts
 import { starterGame } from '@ancadeba/schemas'

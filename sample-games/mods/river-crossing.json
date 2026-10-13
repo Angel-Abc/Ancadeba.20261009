@@ -1,0 +1,24 @@
+{
+  "actors": [],
+  "abilities": [],
+  "encounters": [],
+  "terrains": [
+    {
+      "id": "water",
+      "name": "Shallow river",
+      "color": "#467d97",
+      "glyph": "≈",
+      "walkable": true
+    }
+  ],
+  "maps": [],
+  "npcs": [],
+  "dialogues": [],
+  "quests": [],
+  "id": "open-river",
+  "name": "River crossing",
+  "version": "1.0.0",
+  "description": "A terrain-only mod that makes river tiles walkable.",
+  "enabled": true,
+  "requires": []
+}

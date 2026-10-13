@@ -1,9 +1,12 @@
 # Engine architecture and extension guide
 
-Ancadeba v1 focuses on turn-based party combat and game content authoring. It
-ships a playable sample, reusable runtime, editor, local storage API, and mod
-composition. World maps, dialogue, inventory/equipment, campaign progression,
-and multiplayer are future modules; this version does not implement them.
+Ancadeba v1 supports tile-world exploration, turn-based party combat, and visual
+content authoring. It ships connected sample maps, NPCs, branching dialogue,
+reusable world, conversation, quest and battle runtimes, an editor, a local storage API,
+and mod composition. Inventory/equipment and multiplayer
+remain future modules.
+See [the world-map guide](world-maps.md) for map schemas and movement APIs.
+See [the quest guide](quests.md) for event attribution, progress and extension points.
 
 ## Package boundaries
 
@@ -28,7 +31,9 @@ receives a runtime and optional storage rather than creating a global session.
 Projects have `id`, `name`, and optional `game` fields. Metadata-only scaffold
 projects still load; the editor gives them a starter draft. Exported playable
 projects include `game` with `formatVersion: 1`, `startingEncounter`, `actors`,
-`abilities`, `encounters`, and `mods`. Incompatible format versions are rejected.
+`abilities`, `encounters`, and `mods`. World content adds `terrains`, `maps`, and
+optional `startingMap`. Missing map/terrain collections default to empty arrays
+so existing games and mods still load. Incompatible format versions are rejected.
 IDs use lowercase letters, digits, dots, underscores, and hyphens and begin with
 a letter. The visual editor creates stable IDs; use project JSON to change IDs
 and all corresponding references together.
@@ -67,7 +72,8 @@ requires a valid project before replacing the draft.
 ## Data mods
 
 A mod has `id`, `name`, `version`, `description`, `enabled`, `requires`, and
-optional collections of actors, abilities, and encounters. Versions are labels;
+optional collections of actors, abilities, encounters, terrains, maps, NPCs,
+dialogues and quests. Versions are labels;
 `requires` contains exact mod IDs, not version constraints.
 
 Base content loads first. Enabled mods are traversed in their configured order.
@@ -137,11 +143,17 @@ validation together. New immediate effects and damage rules need only handlers.
 ## Persistence
 
 `runtime.save(state)` creates a versioned JSON snapshot. `restore(json)` checks
-the resolved-content fingerprint, encounter membership, order, current turn,
-HP/MP ranges, poison duration, logs, and outcome. Changed active content makes a
+the combat-content fingerprint, encounter membership, order, current turn,
+HP/MP ranges, poison duration, logs, and outcome. Changed active combat content makes a
 save incompatible; restart the encounter after balancing changes. Battle saves
 live in the browser, using separate keys for editor/player, project, and
 encounter. The latest 200 log entries are retained.
+
+World saves additionally preserve map position, direction, steps, cleared
+encounter markers, dialogue flags, conversations, quest progress, and any active battle. Their fingerprint includes all resolved
+content. Map edits invalidate world saves without invalidating standalone battle
+saves. The same project validation protects maps, terrain references, marker
+positions, and portal destinations at import, preview, and API-save boundaries.
 
 `GET /api/project` returns `{ project, revision, label }`. `PUT /api/project`
 accepts `{ project, revision }`, validates content, saves, and returns the new

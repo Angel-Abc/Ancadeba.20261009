@@ -62,7 +62,11 @@ test('adds content, enables a mod, and previews the composed game', async ({
     .getByRole('navigation')
     .getByRole('button', { name: /Mods/ })
     .click()
-  await page.getByLabel('Enabled', { exact: true }).check()
+  await page
+    .getByRole('article')
+    .filter({ has: page.getByRole('heading', { name: /Wildwood awakened/ }) })
+    .getByLabel('Enabled', { exact: true })
+    .check()
   await page
     .getByRole('button', { name: '▷ Playtest game', exact: true })
     .click()
@@ -103,13 +107,11 @@ test('imports and exports projects and reports invalid JSON', async ({
   const path = await download.path()
   expect(path).not.toBeNull()
   expect(JSON.parse(await readFile(path!, 'utf8')).name).toBe('Moonlit Road')
-  await page
-    .getByLabel('Import project', { exact: true })
-    .setInputFiles({
-      name: 'import.json',
-      mimeType: 'application/json',
-      buffer: Buffer.from(original),
-    })
+  await page.getByLabel('Import project', { exact: true }).setInputFiles({
+    name: 'import.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(original),
+  })
   await expect(
     page.getByText('Basic Game (basic-game)', { exact: true }),
   ).toBeVisible()
@@ -134,6 +136,12 @@ test.describe('project persistence', () => {
         .click()
       await page.getByLabel('Max HP', { exact: true }).fill('144')
       await page
+        .getByRole('navigation')
+        .getByRole('button', { name: /World maps/ })
+        .click()
+      await page.getByRole('button', { name: /River.*Blocked/ }).click()
+      await page.getByRole('button', { name: /^Tile 4,3:/ }).click()
+      await page
         .getByRole('button', { name: 'Save project', exact: true })
         .click()
       await expect(page.getByRole('status')).toHaveText(
@@ -141,7 +149,15 @@ test.describe('project persistence', () => {
       )
       const saved = await (await request.get('/api/project')).json()
       expect(saved.project.game.actors[0].maxHp).toBe(144)
+      expect(saved.project.game.maps[0].tiles[40]).toBe('water')
       await page.reload()
+      await page
+        .getByRole('navigation')
+        .getByRole('button', { name: /World maps/ })
+        .click()
+      await expect(
+        page.getByRole('button', { name: /^Tile 4,3: River/ }),
+      ).toBeVisible()
       await page
         .getByRole('navigation')
         .getByRole('button', { name: /Actors/ })

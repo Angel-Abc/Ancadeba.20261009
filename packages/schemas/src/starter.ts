@@ -1,8 +1,17 @@
 import { gameSchema } from './game.js'
+import { starterMaps, starterTerrains } from './starterWorld.js'
+import { starterDialogues, starterNpcs } from './starterDialogue.js'
+import { starterQuests } from './starterQuests.js'
 
 export const starterGame = gameSchema.parse({
   formatVersion: 1,
   startingEncounter: 'forest-road',
+  startingMap: 'alderfell',
+  terrains: starterTerrains,
+  maps: starterMaps,
+  npcs: starterNpcs,
+  dialogues: starterDialogues,
+  quests: starterQuests,
   abilities: [
     {
       id: 'strike',
@@ -127,6 +136,65 @@ export const starterGame = gameSchema.parse({
           defense: 8,
           speed: 13,
           abilities: ['strike', 'venom'],
+        },
+      ],
+    },
+    {
+      id: 'open-river',
+      name: 'River crossing',
+      version: '1.0.0',
+      description: 'A terrain-only mod that makes river tiles walkable.',
+      enabled: false,
+      terrains: [
+        {
+          id: 'water',
+          name: 'Shallow river',
+          color: '#467d97',
+          glyph: '≈',
+          walkable: true,
+        },
+      ],
+    },
+    {
+      id: 'traveller-tales',
+      name: 'Traveller tales',
+      version: '1.0.0',
+      description:
+        'An NPC and dialogue override that adds a traveller’s story to Mara’s conversation.',
+      enabled: false,
+      npcs: [
+        { ...starterNpcs[0]!, name: 'Mara, storyteller', color: '#d4b1ee' },
+      ],
+      dialogues: [
+        {
+          ...starterDialogues[0]!,
+          nodes: starterDialogues[0]!.nodes
+            .map((node) =>
+              node.id === 'welcome'
+                ? {
+                    ...node,
+                    text: 'Every traveller carries a story. Shall we share one?',
+                    choices: [
+                      ...node.choices,
+                      {
+                        id: 'story',
+                        text: 'Tell me a traveller’s story.',
+                        nextNodeId: 'traveller-story',
+                        conditions: [],
+                        effects: [],
+                      },
+                    ],
+                  }
+                : node,
+            )
+            .concat([
+              {
+                id: 'traveller-story',
+                speaker: '',
+                text: 'A wanderer once crossed the river by listening to the stones. Some paths begin with a question.',
+                choices: [],
+              },
+            ]),
         },
       ],
     },

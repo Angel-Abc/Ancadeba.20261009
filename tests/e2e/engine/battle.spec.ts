@@ -5,6 +5,9 @@ test('plays an encounter to victory and restores a browser battle save', async (
 }) => {
   await page.goto('/')
   await page
+    .getByRole('button', { name: 'Battle sandbox', exact: true })
+    .click()
+  await page
     .getByRole('combobox', { name: 'Choose encounter', exact: true })
     .selectOption('moss-grove')
   await page.getByRole('button', { name: 'Save battle', exact: true }).click()
@@ -47,8 +50,11 @@ test('loads the editor project and renders a battle on a small screen', async ({
     .getByRole('button', { name: 'Load editor project', exact: true })
     .click()
   await expect(page.getByRole('status')).toHaveText(
-    'Game loaded. Choose an encounter to play.',
+    'Game loaded. Explore the world or try a battle.',
   )
+  await page
+    .getByRole('button', { name: 'Battle sandbox', exact: true })
+    .click()
   await expect(
     page.getByRole('heading', { name: 'The forest road', exact: true }),
   ).toBeVisible()

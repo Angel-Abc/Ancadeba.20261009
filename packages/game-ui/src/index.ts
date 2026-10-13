@@ -1,2 +1,6 @@
 export { BattleView } from './BattleView.js'
+export { MapGrid } from './MapGrid.js'
+export { WorldView } from './WorldView.js'
+export { DialogueView } from './DialogueView.js'
 export { downloadJson } from './files.js'
+export { QuestJournal } from './QuestJournal.js'

@@ -84,6 +84,11 @@ body {
   color: #788172;
   text-align: center;
 }
+.player-modes {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
 @media (max-width: 720px) {
   .player-shell {
     padding: 18px 14px;

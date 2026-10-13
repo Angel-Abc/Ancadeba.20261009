@@ -26,7 +26,8 @@ export class BattleRuntime {
     private readonly strategy: BattleStrategy = new TacticalBattleStrategy(),
   ) {
     this.content = resolveContent(game)
-    this.fingerprint = JSON.stringify(this.content)
+    const { actors, abilities, encounters } = this.content
+    this.fingerprint = JSON.stringify({ actors, abilities, encounters })
     for (const ability of this.content.abilities) {
       for (const effect of ability.effects)
         if (!effects.has(effect.type))

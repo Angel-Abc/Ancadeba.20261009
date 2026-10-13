@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
+import { randomUUID } from 'node:crypto'
 import { e2ePorts, e2eUrls } from './tests/e2e/environment'
 
 export default defineConfig({
@@ -33,7 +34,7 @@ export default defineConfig({
       env: {
         HOST: '127.0.0.1',
         PORT: String(e2ePorts.server),
-        PROJECT_FILE: '../../test-results/e2e-project.json',
+        PROJECT_FILE: `../../test-results/e2e-project-${randomUUID()}.json`,
       },
       reuseExistingServer: false,
     },

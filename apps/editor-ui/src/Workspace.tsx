@@ -5,22 +5,41 @@ import {
   starterGame,
   type Project,
 } from '@ancadeba/schemas'
-import { BattleRuntime } from '@ancadeba/game-runtime'
-import { BattleView, downloadJson } from '@ancadeba/game-ui'
+import { BattleRuntime, WorldRuntime } from '@ancadeba/game-runtime'
+import { BattleView, WorldView, downloadJson } from '@ancadeba/game-ui'
 import { getProjectLabel } from '@ancadeba/utilities'
 import { ContentEditor, type Collection } from './ContentEditor'
 import type { ProjectLoader } from './projectLoader'
 import { useProjectHistory } from './useProjectHistory'
+import { MapEditor } from './MapEditor'
+import { NpcEditor } from './NpcEditor'
+import { DialogueEditor } from './DialogueEditor'
+import { QuestEditor } from './QuestEditor'
 
-type Tab = 'overview' | Collection | 'mods' | 'source' | 'playtest'
+type Tab =
+  | 'overview'
+  | Collection
+  | 'maps'
+  | 'npcs'
+  | 'dialogues'
+  | 'quests'
+  | 'mods'
+  | 'source'
+  | 'playtest'
+  | 'world'
 const tabs: { id: Tab; label: string; icon: string }[] = [
   { id: 'overview', label: 'Overview', icon: '◈' },
   { id: 'actors', label: 'Actors', icon: '♙' },
   { id: 'abilities', label: 'Abilities', icon: '✦' },
   { id: 'encounters', label: 'Encounters', icon: '⚑' },
+  { id: 'maps', label: 'World maps', icon: '▦' },
+  { id: 'npcs', label: 'NPCs', icon: '♙' },
+  { id: 'dialogues', label: 'Dialogues', icon: '☷' },
+  { id: 'quests', label: 'Quests', icon: '☑' },
   { id: 'mods', label: 'Mods', icon: '▧' },
   { id: 'source', label: 'Project JSON', icon: '{ }' },
   { id: 'playtest', label: 'Playtest', icon: '▷' },
+  { id: 'world', label: 'Explore world', icon: '⌖' },
 ]
 
 function SourceEditor({
@@ -77,6 +96,9 @@ export function Workspace({
     project.game!.startingEncounter,
   )
   const [notice, setNotice] = useState('')
+  const [mapId, setMapId] = useState(
+    project.game!.startingMap ?? project.game!.maps[0]?.id ?? '',
+  )
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const game = project.game!
@@ -93,6 +115,18 @@ export function Workspace({
     }
   }, [project])
   const runtime = validation.runtime
+  const worldRuntime = useMemo(
+    () =>
+      runtime && runtime.content.maps.length
+        ? new WorldRuntime(runtime, game.startingMap)
+        : null,
+    [runtime, game.startingMap],
+  )
+  const activeMap =
+    runtime?.content.maps.find((entry) => entry.id === mapId)?.id ??
+    game.startingMap ??
+    runtime?.content.maps[0]?.id ??
+    ''
   const activeEncounter =
     runtime?.content.encounters.find((entry) => entry.id === encounterId)?.id ??
     game.startingEncounter
@@ -119,6 +153,7 @@ export function Workspace({
       new BattleRuntime(next.game)
       change(next)
       setEncounterId(next.game.startingEncounter)
+      setMapId(next.game.startingMap ?? next.game.maps[0]?.id ?? '')
       setNotice('Project imported. Save to keep these changes on disk.')
     } catch (failure) {
       setError(
@@ -154,6 +189,7 @@ export function Workspace({
       setEncounterId(
         next.game?.startingEncounter ?? starterGame.startingEncounter,
       )
+      setMapId(next.game?.startingMap ?? next.game?.maps[0]?.id ?? '')
       setNotice('Saved project reloaded.')
       setError('')
     } catch (failure) {
@@ -327,25 +363,34 @@ export function Workspace({
                   </span>
                 </div>
                 <div className='stat-grid'>
-                  {(['actors', 'abilities', 'encounters', 'mods'] as const).map(
-                    (key) => (
-                      <button
-                        key={key}
-                        className='stat-card'
-                        onClick={() => setTab(key)}
-                      >
-                        <span>{key}</span>
-                        <strong>
-                          {game[key].length.toString().padStart(2, '0')}
-                        </strong>
-                        <small>
-                          {key === 'mods'
-                            ? `${game.mods.filter((mod) => mod.enabled).length} enabled`
-                            : 'Base definitions →'}
-                        </small>
-                      </button>
-                    ),
-                  )}
+                  {(
+                    [
+                      'actors',
+                      'abilities',
+                      'encounters',
+                      'maps',
+                      'npcs',
+                      'dialogues',
+                      'quests',
+                      'mods',
+                    ] as const
+                  ).map((key) => (
+                    <button
+                      key={key}
+                      className='stat-card'
+                      onClick={() => setTab(key)}
+                    >
+                      <span>{key}</span>
+                      <strong>
+                        {game[key].length.toString().padStart(2, '0')}
+                      </strong>
+                      <small>
+                        {key === 'mods'
+                          ? `${game.mods.filter((mod) => mod.enabled).length} enabled`
+                          : 'Base definitions →'}
+                      </small>
+                    </button>
+                  ))}
                 </div>
                 <section className='panel'>
                   <div className='section-heading'>
@@ -367,6 +412,29 @@ export function Workspace({
                           change({ ...project, name: event.target.value })
                         }
                       />
+                    </label>
+                    <label>
+                      Starting map
+                      <select
+                        aria-label='Starting map'
+                        value={game.startingMap ?? ''}
+                        onChange={(event) =>
+                          change({
+                            ...project,
+                            game: {
+                              ...game,
+                              startingMap: event.target.value || undefined,
+                            },
+                          })
+                        }
+                      >
+                        <option value=''>First available map</option>
+                        {(runtime?.content.maps ?? game.maps).map((entry) => (
+                          <option key={entry.id} value={entry.id}>
+                            {entry.name}
+                          </option>
+                        ))}
+                      </select>
                     </label>
                     <label>
                       Starting encounter
@@ -421,6 +489,46 @@ export function Workspace({
                 catalog={runtime?.content ?? game}
                 collection={tab}
                 onChange={(next) => change({ ...project, game: next })}
+              />
+            )}
+            {tab === 'maps' && (
+              <MapEditor
+                game={game}
+                catalog={runtime?.content ?? game}
+                canPlay={!!runtime}
+                onChange={(next) => change({ ...project, game: next })}
+                onPlay={(id) => {
+                  setMapId(id)
+                  setTab('world')
+                }}
+              />
+            )}
+            {tab === 'npcs' && (
+              <NpcEditor
+                game={game}
+                catalog={runtime?.content ?? game}
+                onChange={(next) => change({ ...project, game: next })}
+              />
+            )}
+            {tab === 'dialogues' && (
+              <DialogueEditor
+                game={game}
+                canPlay={!!runtime}
+                onChange={(next) => change({ ...project, game: next })}
+              />
+            )}
+            {tab === 'quests' && (
+              <QuestEditor
+                game={game}
+                catalog={runtime?.content ?? game}
+                canPlay={!!worldRuntime}
+                onChange={(next) => change({ ...project, game: next })}
+                onPlay={() => {
+                  setMapId(
+                    game.startingMap ?? runtime?.content.maps[0]?.id ?? '',
+                  )
+                  setTab('world')
+                }}
               />
             )}
             {tab === 'mods' && (
@@ -478,7 +586,10 @@ export function Workspace({
                       <code>{mod.id}</code>
                       <p className='hint'>
                         {mod.actors.length} actors · {mod.abilities.length}{' '}
-                        abilities · {mod.encounters.length} encounters
+                        abilities · {mod.encounters.length} encounters ·{' '}
+                        {mod.maps.length} maps · {mod.terrains.length} terrain ·{' '}
+                        {mod.npcs.length} NPCs · {mod.dialogues.length}{' '}
+                        dialogues · {mod.quests.length} quest definitions
                         {mod.requires.length > 0
                           ? ` · Requires: ${mod.requires.join(', ')}`
                           : ''}
@@ -596,6 +707,45 @@ export function Workspace({
                 />
               </>
             )}
+            {tab === 'world' &&
+              (worldRuntime ? (
+                <>
+                  <div className='playtest-controls'>
+                    <label>
+                      Preview map
+                      <select
+                        aria-label='Preview map'
+                        value={activeMap}
+                        onChange={(event) => setMapId(event.target.value)}
+                      >
+                        {runtime!.content.maps.map((entry) => (
+                          <option key={entry.id} value={entry.id}>
+                            {entry.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <p>
+                      Exploring your current draft · Changes restart the
+                      preview.
+                    </p>
+                  </div>
+                  <WorldView
+                    key={`${JSON.stringify(game)}:${activeMap}`}
+                    runtime={worldRuntime}
+                    mapId={activeMap}
+                    storage={window.localStorage}
+                    saveKey={`ancadeba-preview-world:${project.id}`}
+                  />
+                </>
+              ) : (
+                <section className='panel'>
+                  <p>Add a valid map in World maps to explore your game.</p>
+                  <button onClick={() => setTab('maps')}>
+                    Open map editor
+                  </button>
+                </section>
+              ))}
           </fieldset>
         </main>
         <footer className='workspace-footer'>

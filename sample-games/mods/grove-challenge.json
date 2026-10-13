@@ -1,0 +1,38 @@
+{
+  "actors": [],
+  "abilities": [],
+  "encounters": [],
+  "terrains": [],
+  "maps": [],
+  "npcs": [],
+  "dialogues": [],
+  "quests": [
+    {
+      "id": "grove-training",
+      "name": "Guardians of the grove",
+      "description": "After helping the grove, practice against its mosslings. The encounter in the moss grove can be repeated.",
+      "autoStart": false,
+      "start": null,
+      "requires": ["grove-pilgrimage"],
+      "ordered": false,
+      "objectives": [
+        {
+          "id": "practice",
+          "text": "Win three more moss grove encounters.",
+          "target": 3,
+          "trigger": {
+            "type": "encounter-victory",
+            "encounterId": "moss-grove"
+          }
+        }
+      ],
+      "completionEffects": []
+    }
+  ],
+  "id": "grove-challenge",
+  "name": "Grove challenge",
+  "version": "1.0.0",
+  "description": "A quest-only override: win three moss grove encounters after helping Mara.",
+  "enabled": true,
+  "requires": []
+}

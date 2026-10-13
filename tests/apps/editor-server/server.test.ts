@@ -133,4 +133,50 @@ describe('editor server', () => {
     })
     expect(oversized.status).toBe(400)
   })
+
+  it('rejects broken map references and keeps saved world content intact', async () => {
+    const valid = await fetch(`${baseUrl}/api/project`, {
+      method: 'PUT',
+      body: JSON.stringify({ project: starterProject, revision: 0 }),
+    })
+    expect(valid.status).toBe(200)
+    const invalid = structuredClone(starterProject)
+    invalid.game.maps[0]!.portals[0]!.targetMapId = 'missing'
+    const rejected = await fetch(`${baseUrl}/api/project`, {
+      method: 'PUT',
+      body: JSON.stringify({ project: invalid, revision: 1 }),
+    })
+    expect(rejected.status).toBe(400)
+    expect(await rejected.json()).toMatchObject({
+      error: expect.stringContaining('missing map'),
+    })
+    expect(await (await fetch(`${baseUrl}/api/project`)).json()).toMatchObject({
+      project: starterProject,
+      revision: 1,
+    })
+  })
+
+  it('validates dialogue links and persists NPC and dialogue content', async () => {
+    const invalid = structuredClone(starterProject)
+    invalid.game.dialogues[0]!.nodes[0]!.choices[0]!.nextNodeId = 'missing'
+    const rejected = await fetch(`${baseUrl}/api/project`, {
+      method: 'PUT',
+      body: JSON.stringify({ project: invalid, revision: 0 }),
+    })
+    expect(rejected.status).toBe(400)
+    expect(await rejected.json()).toMatchObject({
+      error: expect.stringContaining('missing node'),
+    })
+    const saved = await fetch(`${baseUrl}/api/project`, {
+      method: 'PUT',
+      body: JSON.stringify({ project: starterProject, revision: 0 }),
+    })
+    expect(saved.status).toBe(200)
+    const body = await (await fetch(`${baseUrl}/api/project`)).json()
+    expect(body.project.game.npcs[0].name).toBe('Mara')
+    expect(body.project.game.dialogues[0].nodes[0].choices[0].nextNodeId).toBe(
+      'road',
+    )
+    expect(body.project.game.maps[0].npcs[0].npcId).toBe('mara')
+  })
 })

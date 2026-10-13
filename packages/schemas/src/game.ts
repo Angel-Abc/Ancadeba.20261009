@@ -1,9 +1,10 @@
 import { z } from 'zod'
+import { contentIdSchema } from './contentId.js'
+import { terrainSchema, worldMapSchema } from './world.js'
+import { dialogueSchema, npcSchema } from './dialogue.js'
+import { questSchema } from './quest.js'
 
-export const contentIdSchema = z
-  .string()
-  .trim()
-  .regex(/^[a-z][a-z0-9._-]*$/, 'Use a lowercase ID beginning with a letter')
+export { contentIdSchema } from './contentId.js'
 const name = z.string().trim().min(1).max(100)
 const stat = z.number().int().min(0).max(9999)
 
@@ -46,6 +47,11 @@ export const contentPackSchema = z.object({
   actors: z.array(actorSchema).max(1000).default([]),
   abilities: z.array(abilitySchema).max(1000).default([]),
   encounters: z.array(encounterSchema).max(1000).default([]),
+  terrains: z.array(terrainSchema).max(1000).default([]),
+  maps: z.array(worldMapSchema).max(100).default([]),
+  npcs: z.array(npcSchema).max(1000).default([]),
+  dialogues: z.array(dialogueSchema).max(1000).default([]),
+  quests: z.array(questSchema).max(1000).default([]),
 })
 
 export const modSchema = contentPackSchema.extend({
@@ -60,6 +66,7 @@ export const modSchema = contentPackSchema.extend({
 export const gameSchema = contentPackSchema.extend({
   formatVersion: z.literal(1),
   startingEncounter: contentIdSchema,
+  startingMap: contentIdSchema.optional(),
   mods: z.array(modSchema).max(100).default([]),
 })
 

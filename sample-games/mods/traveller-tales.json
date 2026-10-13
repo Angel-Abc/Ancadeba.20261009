@@ -1,0 +1,168 @@
+{
+  "actors": [],
+  "abilities": [],
+  "encounters": [],
+  "terrains": [],
+  "maps": [],
+  "npcs": [
+    {
+      "id": "mara",
+      "name": "Mara, storyteller",
+      "description": "A road warden who knows the wildwood.",
+      "dialogueId": "road-warden",
+      "glyph": "♙",
+      "color": "#d4b1ee"
+    }
+  ],
+  "dialogues": [
+    {
+      "id": "road-warden",
+      "name": "The road warden",
+      "startNodeId": "welcome",
+      "nodes": [
+        {
+          "id": "welcome",
+          "speaker": "",
+          "text": "Every traveller carries a story. Shall we share one?",
+          "choices": [
+            {
+              "id": "ask-road",
+              "text": "Tell me about the road.",
+              "nextNodeId": "road",
+              "conditions": [],
+              "effects": []
+            },
+            {
+              "id": "ask-work",
+              "text": "Can I help?",
+              "nextNodeId": "offer",
+              "conditions": [
+                {
+                  "flag": "meet-keeper",
+                  "equals": false
+                }
+              ],
+              "effects": []
+            },
+            {
+              "id": "share-news",
+              "text": "I have spoken with the grove keeper.",
+              "nextNodeId": "thanks",
+              "conditions": [
+                {
+                  "flag": "grove-blessing",
+                  "equals": true
+                }
+              ],
+              "effects": []
+            },
+            {
+              "id": "leave",
+              "text": "Farewell.",
+              "nextNodeId": null,
+              "conditions": [],
+              "effects": []
+            },
+            {
+              "id": "story",
+              "text": "Tell me a traveller’s story.",
+              "nextNodeId": "traveller-story",
+              "conditions": [],
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "road",
+          "speaker": "",
+          "text": "Mosslings gather on marked trails. The glowing gate leads to the moss grove. Speak to Elowen when you arrive.",
+          "choices": [
+            {
+              "id": "understood",
+              "text": "Thank you for the advice.",
+              "nextNodeId": "welcome",
+              "conditions": [],
+              "effects": [
+                {
+                  "flag": "road-advice",
+                  "value": true
+                }
+              ]
+            },
+            {
+              "id": "leave",
+              "text": "I should get going.",
+              "nextNodeId": null,
+              "conditions": [],
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "offer",
+          "speaker": "",
+          "text": "Visit Elowen in the moss grove, clear a mossling encounter, and bring me her news. A kind word can open more paths than a sword.",
+          "choices": [
+            {
+              "id": "accept",
+              "text": "I will visit the grove.",
+              "nextNodeId": "accepted",
+              "conditions": [],
+              "effects": [
+                {
+                  "flag": "meet-keeper",
+                  "value": true
+                }
+              ]
+            },
+            {
+              "id": "decline",
+              "text": "Perhaps another time.",
+              "nextNodeId": "welcome",
+              "conditions": [],
+              "effects": []
+            }
+          ]
+        },
+        {
+          "id": "accepted",
+          "speaker": "",
+          "text": "Then go with care. I will be here when you return.",
+          "choices": []
+        },
+        {
+          "id": "thanks",
+          "speaker": "",
+          "text": "The grove welcomes you. Alderfell is brighter for your kindness.",
+          "choices": [
+            {
+              "id": "finish",
+              "text": "Until next time.",
+              "nextNodeId": null,
+              "conditions": [],
+              "effects": [
+                {
+                  "flag": "warden-thanks",
+                  "value": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "traveller-story",
+          "speaker": "",
+          "text": "A wanderer once crossed the river by listening to the stones. Some paths begin with a question.",
+          "choices": []
+        }
+      ]
+    }
+  ],
+  "quests": [],
+  "id": "traveller-tales",
+  "name": "Traveller tales",
+  "version": "1.0.0",
+  "description": "An NPC and dialogue override that adds a traveller’s story to Mara’s conversation.",
+  "enabled": true,
+  "requires": []
+}

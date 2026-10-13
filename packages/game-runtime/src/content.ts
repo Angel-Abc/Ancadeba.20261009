@@ -4,9 +4,21 @@ import {
   type Game,
   type Mod,
 } from '@ancadeba/schemas'
+import { validateWorldContent } from './worldContent.js'
+import { validateDialogueContent } from './dialogueContent.js'
+import { validateQuestContent } from './questContent.js'
 
 function assertUnique(pack: ContentPack, label: string) {
-  for (const key of ['actors', 'abilities', 'encounters'] as const) {
+  for (const key of [
+    'actors',
+    'abilities',
+    'encounters',
+    'terrains',
+    'maps',
+    'npcs',
+    'dialogues',
+    'quests',
+  ] as const) {
     const ids = pack[key].map((entry) => entry.id)
     if (new Set(ids).size !== ids.length)
       throw new Error(`Duplicate ${key} IDs in ${label}`)
@@ -53,6 +65,11 @@ export function resolveContent(input: Game): ContentPack {
     actors: mergeEntries(packs.map((pack) => pack.actors)),
     abilities: mergeEntries(packs.map((pack) => pack.abilities)),
     encounters: mergeEntries(packs.map((pack) => pack.encounters)),
+    terrains: mergeEntries(packs.map((pack) => pack.terrains)),
+    maps: mergeEntries(packs.map((pack) => pack.maps)),
+    npcs: mergeEntries(packs.map((pack) => pack.npcs)),
+    dialogues: mergeEntries(packs.map((pack) => pack.dialogues)),
+    quests: mergeEntries(packs.map((pack) => pack.quests)),
   }
   const abilities = new Set(content.abilities.map((entry) => entry.id))
   const actors = new Set(content.actors.map((entry) => entry.id))
@@ -68,5 +85,8 @@ export function resolveContent(input: Game): ContentPack {
   }
   if (!content.encounters.some((entry) => entry.id === game.startingEncounter))
     throw new Error(`Missing starting encounter ${game.startingEncounter}`)
+  validateDialogueContent(content)
+  validateWorldContent(game, content)
+  validateQuestContent(content)
   return content
 }

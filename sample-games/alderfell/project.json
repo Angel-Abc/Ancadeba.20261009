@@ -136,8 +136,570 @@
         "enemies": ["mossling"]
       }
     ],
+    "terrains": [
+      {
+        "id": "grass",
+        "name": "Meadow",
+        "color": "#445e3b",
+        "glyph": "·",
+        "walkable": true
+      },
+      {
+        "id": "path",
+        "name": "Trail",
+        "color": "#786948",
+        "glyph": "·",
+        "walkable": true
+      },
+      {
+        "id": "forest",
+        "name": "Dense forest",
+        "color": "#263f32",
+        "glyph": "♠",
+        "walkable": false
+      },
+      {
+        "id": "water",
+        "name": "River",
+        "color": "#315873",
+        "glyph": "≈",
+        "walkable": false
+      }
+    ],
+    "maps": [
+      {
+        "id": "alderfell",
+        "name": "Alderfell wildwood",
+        "description": "Follow the trail into the wildwood. Marked tiles hold encounters; glowing gates lead to other maps.",
+        "width": 12,
+        "height": 8,
+        "tiles": [
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "grass",
+          "grass",
+          "grass",
+          "grass",
+          "grass",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "path",
+          "path",
+          "path",
+          "path",
+          "path",
+          "path",
+          "grass",
+          "grass",
+          "grass",
+          "forest",
+          "forest",
+          "forest",
+          "grass",
+          "grass",
+          "grass",
+          "grass",
+          "path",
+          "water",
+          "water",
+          "grass",
+          "grass",
+          "grass",
+          "forest",
+          "forest",
+          "grass",
+          "grass",
+          "grass",
+          "grass",
+          "path",
+          "path",
+          "path",
+          "path",
+          "path",
+          "grass",
+          "forest",
+          "forest",
+          "grass",
+          "grass",
+          "forest",
+          "forest",
+          "grass",
+          "grass",
+          "grass",
+          "grass",
+          "path",
+          "path",
+          "forest",
+          "forest",
+          "grass",
+          "grass",
+          "grass",
+          "grass",
+          "grass",
+          "grass",
+          "grass",
+          "grass",
+          "grass",
+          "grass",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest"
+        ],
+        "spawn": {
+          "x": 1,
+          "y": 2
+        },
+        "encounters": [
+          {
+            "x": 3,
+            "y": 2,
+            "id": "road-mossling",
+            "encounterId": "moss-grove",
+            "repeatable": false
+          },
+          {
+            "x": 6,
+            "y": 4,
+            "id": "forest-ambush",
+            "encounterId": "forest-road",
+            "repeatable": false
+          }
+        ],
+        "portals": [
+          {
+            "x": 10,
+            "y": 5,
+            "id": "grove-gate",
+            "name": "Enter the moss grove",
+            "targetMapId": "moss-grove-map",
+            "destination": {
+              "x": 1,
+              "y": 1
+            }
+          }
+        ],
+        "npcs": [
+          {
+            "x": 2,
+            "y": 3,
+            "id": "mara-road",
+            "npcId": "mara"
+          }
+        ]
+      },
+      {
+        "id": "moss-grove-map",
+        "name": "Moss grove",
+        "description": "A quiet clearing beyond the river. The southern gate returns to Alderfell.",
+        "width": 8,
+        "height": 6,
+        "tiles": [
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "path",
+          "path",
+          "path",
+          "path",
+          "path",
+          "grass",
+          "forest",
+          "forest",
+          "grass",
+          "grass",
+          "grass",
+          "grass",
+          "path",
+          "grass",
+          "forest",
+          "forest",
+          "grass",
+          "grass",
+          "grass",
+          "grass",
+          "path",
+          "grass",
+          "forest",
+          "forest",
+          "grass",
+          "grass",
+          "grass",
+          "grass",
+          "path",
+          "grass",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest",
+          "forest"
+        ],
+        "spawn": {
+          "x": 1,
+          "y": 1
+        },
+        "encounters": [
+          {
+            "x": 3,
+            "y": 1,
+            "id": "grove-training",
+            "encounterId": "moss-grove",
+            "repeatable": true
+          }
+        ],
+        "portals": [
+          {
+            "x": 5,
+            "y": 4,
+            "id": "return-gate",
+            "name": "Return to Alderfell",
+            "targetMapId": "alderfell",
+            "destination": {
+              "x": 9,
+              "y": 5
+            }
+          }
+        ],
+        "npcs": [
+          {
+            "x": 6,
+            "y": 3,
+            "id": "elowen-grove",
+            "npcId": "elowen"
+          }
+        ]
+      }
+    ],
+    "npcs": [
+      {
+        "id": "mara",
+        "name": "Mara",
+        "description": "A road warden who knows the wildwood.",
+        "dialogueId": "road-warden",
+        "glyph": "♙",
+        "color": "#e6bd84"
+      },
+      {
+        "id": "elowen",
+        "name": "Elowen",
+        "description": "The keeper of the moss grove.",
+        "dialogueId": "grove-keeper",
+        "glyph": "♙",
+        "color": "#a7d1b0"
+      }
+    ],
+    "dialogues": [
+      {
+        "id": "road-warden",
+        "name": "The road warden",
+        "startNodeId": "welcome",
+        "nodes": [
+          {
+            "id": "welcome",
+            "speaker": "",
+            "text": "The forest remembers every traveller. What brings you to Alderfell?",
+            "choices": [
+              {
+                "id": "ask-road",
+                "text": "Tell me about the road.",
+                "nextNodeId": "road",
+                "conditions": [],
+                "effects": []
+              },
+              {
+                "id": "ask-work",
+                "text": "Can I help?",
+                "nextNodeId": "offer",
+                "conditions": [
+                  {
+                    "flag": "meet-keeper",
+                    "equals": false
+                  }
+                ],
+                "effects": []
+              },
+              {
+                "id": "share-news",
+                "text": "I have spoken with the grove keeper.",
+                "nextNodeId": "thanks",
+                "conditions": [
+                  {
+                    "flag": "grove-blessing",
+                    "equals": true
+                  }
+                ],
+                "effects": []
+              },
+              {
+                "id": "leave",
+                "text": "Farewell.",
+                "nextNodeId": null,
+                "conditions": [],
+                "effects": []
+              }
+            ]
+          },
+          {
+            "id": "road",
+            "speaker": "",
+            "text": "Mosslings gather on marked trails. The glowing gate leads to the moss grove. Speak to Elowen when you arrive.",
+            "choices": [
+              {
+                "id": "understood",
+                "text": "Thank you for the advice.",
+                "nextNodeId": "welcome",
+                "conditions": [],
+                "effects": [
+                  {
+                    "flag": "road-advice",
+                    "value": true
+                  }
+                ]
+              },
+              {
+                "id": "leave",
+                "text": "I should get going.",
+                "nextNodeId": null,
+                "conditions": [],
+                "effects": []
+              }
+            ]
+          },
+          {
+            "id": "offer",
+            "speaker": "",
+            "text": "Visit Elowen in the moss grove, clear a mossling encounter, and bring me her news. A kind word can open more paths than a sword.",
+            "choices": [
+              {
+                "id": "accept",
+                "text": "I will visit the grove.",
+                "nextNodeId": "accepted",
+                "conditions": [],
+                "effects": [
+                  {
+                    "flag": "meet-keeper",
+                    "value": true
+                  }
+                ]
+              },
+              {
+                "id": "decline",
+                "text": "Perhaps another time.",
+                "nextNodeId": "welcome",
+                "conditions": [],
+                "effects": []
+              }
+            ]
+          },
+          {
+            "id": "accepted",
+            "speaker": "",
+            "text": "Then go with care. I will be here when you return.",
+            "choices": []
+          },
+          {
+            "id": "thanks",
+            "speaker": "",
+            "text": "The grove welcomes you. Alderfell is brighter for your kindness.",
+            "choices": [
+              {
+                "id": "finish",
+                "text": "Until next time.",
+                "nextNodeId": null,
+                "conditions": [],
+                "effects": [
+                  {
+                    "flag": "warden-thanks",
+                    "value": true
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "grove-keeper",
+        "name": "A blessing in the grove",
+        "startNodeId": "hello",
+        "nodes": [
+          {
+            "id": "hello",
+            "speaker": "",
+            "text": "Welcome, traveller. The grove is quiet today.",
+            "choices": [
+              {
+                "id": "blessing",
+                "text": "May I receive the grove’s blessing?",
+                "nextNodeId": "blessed",
+                "conditions": [
+                  {
+                    "flag": "grove-blessing",
+                    "equals": false
+                  }
+                ],
+                "effects": [
+                  {
+                    "flag": "grove-blessing",
+                    "value": true
+                  }
+                ]
+              },
+              {
+                "id": "return",
+                "text": "It is good to see you again.",
+                "nextNodeId": "blessed",
+                "conditions": [
+                  {
+                    "flag": "grove-blessing",
+                    "equals": true
+                  }
+                ],
+                "effects": []
+              },
+              {
+                "id": "leave",
+                "text": "Farewell.",
+                "nextNodeId": null,
+                "conditions": [],
+                "effects": []
+              }
+            ]
+          },
+          {
+            "id": "blessed",
+            "speaker": "",
+            "text": "Carry the peace of this place with you. Tell Mara that the old paths are still watched over.",
+            "choices": [
+              {
+                "id": "promise",
+                "text": "I will bring Mara your news.",
+                "nextNodeId": null,
+                "conditions": [],
+                "effects": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "quests": [
+      {
+        "id": "grove-pilgrimage",
+        "name": "A kindness for the grove",
+        "description": "Mara asks you to visit Elowen. Clear a mossling encounter, receive the keeper’s message, and bring word back to the warden.",
+        "autoStart": false,
+        "start": {
+          "type": "dialogue-choice",
+          "dialogueId": "road-warden",
+          "nodeId": "offer",
+          "choiceId": "accept",
+          "npcId": "mara"
+        },
+        "requires": [],
+        "ordered": false,
+        "objectives": [
+          {
+            "id": "clear-mosslings",
+            "text": "Win a moss grove encounter.",
+            "target": 1,
+            "trigger": {
+              "type": "encounter-victory",
+              "encounterId": "moss-grove"
+            }
+          },
+          {
+            "id": "keeper-message",
+            "text": "Promise Elowen to deliver her message.",
+            "target": 1,
+            "trigger": {
+              "type": "dialogue-choice",
+              "dialogueId": "grove-keeper",
+              "nodeId": "blessed",
+              "choiceId": "promise",
+              "npcId": "elowen"
+            }
+          },
+          {
+            "id": "return-news",
+            "text": "Share the grove’s news with Mara and say goodbye.",
+            "target": 1,
+            "trigger": {
+              "type": "dialogue-choice",
+              "dialogueId": "road-warden",
+              "nodeId": "thanks",
+              "choiceId": "finish",
+              "npcId": "mara"
+            }
+          }
+        ],
+        "completionEffects": [
+          {
+            "flag": "grove-quest-complete",
+            "value": true
+          }
+        ]
+      },
+      {
+        "id": "grove-training",
+        "name": "Guardians of the trail",
+        "description": "After helping the grove, practice against its mosslings. The encounter in the moss grove can be repeated.",
+        "autoStart": false,
+        "start": null,
+        "requires": ["grove-pilgrimage"],
+        "ordered": false,
+        "objectives": [
+          {
+            "id": "practice",
+            "text": "Win two more moss grove encounters.",
+            "target": 2,
+            "trigger": {
+              "type": "encounter-victory",
+              "encounterId": "moss-grove"
+            }
+          }
+        ],
+        "completionEffects": []
+      }
+    ],
     "formatVersion": 1,
     "startingEncounter": "forest-road",
+    "startingMap": "alderfell",
     "mods": [
       {
         "actors": [
@@ -155,10 +717,207 @@
         ],
         "abilities": [],
         "encounters": [],
+        "terrains": [],
+        "maps": [],
+        "npcs": [],
+        "dialogues": [],
+        "quests": [],
         "id": "hard-mode",
         "name": "Wildwood awakened",
         "version": "1.0.0",
         "description": "A sample content override: stronger mosslings. Enable it to try mod composition.",
+        "enabled": false,
+        "requires": []
+      },
+      {
+        "actors": [],
+        "abilities": [],
+        "encounters": [],
+        "terrains": [
+          {
+            "id": "water",
+            "name": "Shallow river",
+            "color": "#467d97",
+            "glyph": "≈",
+            "walkable": true
+          }
+        ],
+        "maps": [],
+        "npcs": [],
+        "dialogues": [],
+        "quests": [],
+        "id": "open-river",
+        "name": "River crossing",
+        "version": "1.0.0",
+        "description": "A terrain-only mod that makes river tiles walkable.",
+        "enabled": false,
+        "requires": []
+      },
+      {
+        "actors": [],
+        "abilities": [],
+        "encounters": [],
+        "terrains": [],
+        "maps": [],
+        "npcs": [
+          {
+            "id": "mara",
+            "name": "Mara, storyteller",
+            "description": "A road warden who knows the wildwood.",
+            "dialogueId": "road-warden",
+            "glyph": "♙",
+            "color": "#d4b1ee"
+          }
+        ],
+        "dialogues": [
+          {
+            "id": "road-warden",
+            "name": "The road warden",
+            "startNodeId": "welcome",
+            "nodes": [
+              {
+                "id": "welcome",
+                "speaker": "",
+                "text": "Every traveller carries a story. Shall we share one?",
+                "choices": [
+                  {
+                    "id": "ask-road",
+                    "text": "Tell me about the road.",
+                    "nextNodeId": "road",
+                    "conditions": [],
+                    "effects": []
+                  },
+                  {
+                    "id": "ask-work",
+                    "text": "Can I help?",
+                    "nextNodeId": "offer",
+                    "conditions": [
+                      {
+                        "flag": "meet-keeper",
+                        "equals": false
+                      }
+                    ],
+                    "effects": []
+                  },
+                  {
+                    "id": "share-news",
+                    "text": "I have spoken with the grove keeper.",
+                    "nextNodeId": "thanks",
+                    "conditions": [
+                      {
+                        "flag": "grove-blessing",
+                        "equals": true
+                      }
+                    ],
+                    "effects": []
+                  },
+                  {
+                    "id": "leave",
+                    "text": "Farewell.",
+                    "nextNodeId": null,
+                    "conditions": [],
+                    "effects": []
+                  },
+                  {
+                    "id": "story",
+                    "text": "Tell me a traveller’s story.",
+                    "nextNodeId": "traveller-story",
+                    "conditions": [],
+                    "effects": []
+                  }
+                ]
+              },
+              {
+                "id": "road",
+                "speaker": "",
+                "text": "Mosslings gather on marked trails. The glowing gate leads to the moss grove. Speak to Elowen when you arrive.",
+                "choices": [
+                  {
+                    "id": "understood",
+                    "text": "Thank you for the advice.",
+                    "nextNodeId": "welcome",
+                    "conditions": [],
+                    "effects": [
+                      {
+                        "flag": "road-advice",
+                        "value": true
+                      }
+                    ]
+                  },
+                  {
+                    "id": "leave",
+                    "text": "I should get going.",
+                    "nextNodeId": null,
+                    "conditions": [],
+                    "effects": []
+                  }
+                ]
+              },
+              {
+                "id": "offer",
+                "speaker": "",
+                "text": "Visit Elowen in the moss grove, clear a mossling encounter, and bring me her news. A kind word can open more paths than a sword.",
+                "choices": [
+                  {
+                    "id": "accept",
+                    "text": "I will visit the grove.",
+                    "nextNodeId": "accepted",
+                    "conditions": [],
+                    "effects": [
+                      {
+                        "flag": "meet-keeper",
+                        "value": true
+                      }
+                    ]
+                  },
+                  {
+                    "id": "decline",
+                    "text": "Perhaps another time.",
+                    "nextNodeId": "welcome",
+                    "conditions": [],
+                    "effects": []
+                  }
+                ]
+              },
+              {
+                "id": "accepted",
+                "speaker": "",
+                "text": "Then go with care. I will be here when you return.",
+                "choices": []
+              },
+              {
+                "id": "thanks",
+                "speaker": "",
+                "text": "The grove welcomes you. Alderfell is brighter for your kindness.",
+                "choices": [
+                  {
+                    "id": "finish",
+                    "text": "Until next time.",
+                    "nextNodeId": null,
+                    "conditions": [],
+                    "effects": [
+                      {
+                        "flag": "warden-thanks",
+                        "value": true
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "traveller-story",
+                "speaker": "",
+                "text": "A wanderer once crossed the river by listening to the stones. Some paths begin with a question.",
+                "choices": []
+              }
+            ]
+          }
+        ],
+        "quests": [],
+        "id": "traveller-tales",
+        "name": "Traveller tales",
+        "version": "1.0.0",
+        "description": "An NPC and dialogue override that adds a traveller’s story to Mara’s conversation.",
         "enabled": false,
         "requires": []
       }

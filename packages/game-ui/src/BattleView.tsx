@@ -1,11 +1,21 @@
 import { useEffect, useState } from 'react'
-import { BattleRuntime, type BattleState } from '@ancadeba/game-runtime'
+import {
+  BattleRuntime,
+  type BattleAction,
+  type BattleState,
+} from '@ancadeba/game-runtime'
 
 interface BattleViewProps {
   runtime: BattleRuntime
   encounterId: string
   storage?: Pick<Storage, 'getItem' | 'setItem'>
   saveKey?: string
+  session?: {
+    state: BattleState
+    act: (action: BattleAction) => void
+    restart: () => void
+  }
+  paused?: boolean
 }
 
 export function BattleView({
@@ -13,8 +23,11 @@ export function BattleView({
   encounterId,
   storage,
   saveKey = 'ancadeba-battle',
+  session,
+  paused = false,
 }: BattleViewProps) {
-  const [battle, setBattle] = useState(() => runtime.start(encounterId))
+  const [localBattle, setBattle] = useState(() => runtime.start(encounterId))
+  const battle = session?.state ?? localBattle
   const [selected, setSelected] = useState('')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
@@ -26,10 +39,12 @@ export function BattleView({
   const enemyTurn = current.team === 'enemy' && battle.outcome === 'active'
 
   useEffect(() => {
-    if (!enemyTurn || error) return
+    if (!enemyTurn || error || paused) return
     const timer = setTimeout(() => {
       try {
-        setBattle(runtime.act(battle, runtime.chooseAction(battle)))
+        const action = runtime.chooseAction(battle)
+        if (session) session.act(action)
+        else setBattle(runtime.act(battle, action))
       } catch (failure) {
         setError(
           failure instanceof Error ? failure.message : 'Enemy action failed',
@@ -37,7 +52,7 @@ export function BattleView({
       }
     }, 650)
     return () => clearTimeout(timer)
-  }, [battle, runtime, enemyTurn, error])
+  }, [battle, runtime, enemyTurn, error, session, paused])
 
   function update(next: BattleState) {
     setBattle(next)
@@ -84,10 +99,18 @@ export function BattleView({
           <p>{encounter.description}</p>
         </div>
         <div className='toolbar'>
-          <button onClick={() => update(runtime.start(encounterId))}>
+          <button
+            onClick={() => {
+              if (session) {
+                session.restart()
+                setError('')
+                setSelected('')
+              } else update(runtime.start(encounterId))
+            }}
+          >
             Restart battle
           </button>
-          {storage && (
+          {storage && !session && (
             <>
               <button onClick={save}>Save battle</button>
               <button onClick={load}>Load battle</button>
@@ -198,12 +221,15 @@ export function BattleView({
                     disabled={current.mp < ability.cost}
                     onClick={() => {
                       try {
-                        update(
-                          runtime.act(battle, {
-                            abilityId: ability.id,
-                            targetId: target.id,
-                          }),
-                        )
+                        const action = {
+                          abilityId: ability.id,
+                          targetId: target.id,
+                        }
+                        if (session) {
+                          session.act(action)
+                          setSelected('')
+                          setError('')
+                        } else update(runtime.act(battle, action))
                       } catch (failure) {
                         setError(
                           failure instanceof Error

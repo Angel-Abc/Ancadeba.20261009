@@ -33,6 +33,11 @@ describe('content composition', () => {
         actors: [{ ...actor, maxHp: 222 }],
         abilities: [],
         encounters: [],
+        maps: [],
+        terrains: [],
+        npcs: [],
+        dialogues: [],
+        quests: [],
       },
       {
         id: 'foundation',
@@ -44,6 +49,11 @@ describe('content composition', () => {
         actors: [{ ...actor, maxHp: 111 }],
         abilities: [],
         encounters: [],
+        maps: [],
+        terrains: [],
+        npcs: [],
+        dialogues: [],
+        quests: [],
       },
     ]
     expect(
