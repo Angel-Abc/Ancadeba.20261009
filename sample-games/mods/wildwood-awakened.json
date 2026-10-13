@@ -1,0 +1,23 @@
+{
+  "actors": [
+    {
+      "id": "mossling",
+      "name": "Ancient Mossling",
+      "role": "Forest guardian",
+      "maxHp": 120,
+      "maxMp": 20,
+      "attack": 20,
+      "defense": 8,
+      "speed": 13,
+      "abilities": ["strike", "venom"]
+    }
+  ],
+  "abilities": [],
+  "encounters": [],
+  "id": "hard-mode",
+  "name": "Wildwood awakened",
+  "version": "1.0.0",
+  "description": "A sample content override: stronger mosslings. Enable it to try mod composition.",
+  "enabled": true,
+  "requires": []
+}

@@ -2,7 +2,7 @@ import { once } from 'node:events'
 import { request } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { projectSchema } from '@ancadeba/schemas'
+import { projectSchema, starterProject } from '@ancadeba/schemas'
 import { createEditorServer } from '../../../apps/editor-server/src/server.js'
 
 describe('editor server', () => {
@@ -37,6 +37,7 @@ describe('editor server', () => {
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({
       project,
+      revision: 0,
       label: 'Basic Game (basic-game)',
     })
   })
@@ -79,6 +80,57 @@ describe('editor server', () => {
     const response = await fetch(`${baseUrl}/api/project`, { method: 'POST' })
 
     expect(response.status).toBe(405)
-    expect(response.headers.get('allow')).toBe('GET')
+    expect(response.headers.get('allow')).toBe('GET, PUT')
+  })
+
+  it('validates and saves content with a revision, rejecting stale writes', async () => {
+    const save = (body: unknown) =>
+      fetch(`${baseUrl}/api/project`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+    const response = await save({ project: starterProject, revision: 0 })
+    expect(response.status).toBe(200)
+    expect(await response.json()).toMatchObject({
+      project: starterProject,
+      revision: 1,
+    })
+    expect((await save({ project, revision: 0 })).status).toBe(409)
+    const latest = await fetch(`${baseUrl}/api/project`)
+    expect(await latest.json()).toMatchObject({
+      project: starterProject,
+      revision: 1,
+    })
+  })
+
+  it('rejects broken game references without changing the project', async () => {
+    const invalid = structuredClone(starterProject)
+    invalid.game.actors[0]!.abilities = ['missing']
+    const response = await fetch(`${baseUrl}/api/project`, {
+      method: 'PUT',
+      body: JSON.stringify({ project: invalid, revision: 0 }),
+    })
+    expect(response.status).toBe(400)
+    expect(await response.json()).toMatchObject({
+      error: expect.stringContaining('missing ability'),
+    })
+    expect(await (await fetch(`${baseUrl}/api/project`)).json()).toMatchObject({
+      project,
+      revision: 0,
+    })
+  })
+
+  it('rejects malformed JSON and oversized bodies', async () => {
+    const malformed = await fetch(`${baseUrl}/api/project`, {
+      method: 'PUT',
+      body: '{',
+    })
+    expect(malformed.status).toBe(400)
+    const oversized = await fetch(`${baseUrl}/api/project`, {
+      method: 'PUT',
+      body: JSON.stringify({ padding: 'x'.repeat(2 * 1024 * 1024) }),
+    })
+    expect(oversized.status).toBe(400)
   })
 })

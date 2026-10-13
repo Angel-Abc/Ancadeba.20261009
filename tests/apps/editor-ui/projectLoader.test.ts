@@ -61,4 +61,29 @@ describe('ApiProjectLoader', () => {
       new ApiProjectLoader(request).load(new AbortController().signal),
     ).rejects.toBe(failure)
   })
+
+  it('saves with the loaded revision and forwards conflict errors', async () => {
+    const project = { id: 'game', name: 'Game' }
+    const request = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(Response.json({ project, revision: 7 }))
+      .mockResolvedValueOnce(Response.json({ project, revision: 8 }))
+      .mockResolvedValueOnce(
+        Response.json(
+          { error: 'Project changed. Reload before saving again.' },
+          { status: 409 },
+        ),
+      )
+    const loader = new ApiProjectLoader(request)
+    await loader.load(new AbortController().signal)
+    await expect(loader.save(project)).resolves.toEqual(project)
+    expect(JSON.parse(String(request.mock.calls[1]?.[1]?.body))).toEqual({
+      project,
+      revision: 7,
+    })
+    await expect(loader.save(project)).rejects.toThrow('Project changed')
+    expect(JSON.parse(String(request.mock.calls[2]?.[1]?.body)).revision).toBe(
+      8,
+    )
+  })
 })

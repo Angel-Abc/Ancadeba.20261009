@@ -1,0 +1,167 @@
+{
+  "id": "basic-game",
+  "name": "Basic Game",
+  "game": {
+    "actors": [
+      {
+        "id": "rowan",
+        "name": "Rowan",
+        "role": "Vanguard",
+        "maxHp": 110,
+        "maxMp": 12,
+        "attack": 18,
+        "defense": 10,
+        "speed": 14,
+        "abilities": ["strike", "guard"]
+      },
+      {
+        "id": "lyra",
+        "name": "Lyra",
+        "role": "Arcanist",
+        "maxHp": 75,
+        "maxMp": 30,
+        "attack": 10,
+        "defense": 5,
+        "speed": 12,
+        "abilities": ["ember", "mend", "strike", "guard"]
+      },
+      {
+        "id": "mossling",
+        "name": "Mossling",
+        "role": "Forest creature",
+        "maxHp": 60,
+        "maxMp": 12,
+        "attack": 12,
+        "defense": 4,
+        "speed": 9,
+        "abilities": ["strike", "venom"]
+      },
+      {
+        "id": "thorn-wolf",
+        "name": "Thorn Wolf",
+        "role": "Wild beast",
+        "maxHp": 85,
+        "maxMp": 0,
+        "attack": 16,
+        "defense": 6,
+        "speed": 16,
+        "abilities": ["strike", "guard"]
+      }
+    ],
+    "abilities": [
+      {
+        "id": "strike",
+        "name": "Strike",
+        "description": "A reliable physical attack.",
+        "target": "enemy",
+        "cost": 0,
+        "effects": [
+          {
+            "type": "damage",
+            "power": 8,
+            "duration": 2
+          }
+        ]
+      },
+      {
+        "id": "ember",
+        "name": "Ember",
+        "description": "A focused burst of fire.",
+        "target": "enemy",
+        "cost": 6,
+        "effects": [
+          {
+            "type": "damage",
+            "power": 25,
+            "duration": 2
+          }
+        ]
+      },
+      {
+        "id": "mend",
+        "name": "Mend",
+        "description": "Restore an ally’s health.",
+        "target": "ally",
+        "cost": 5,
+        "effects": [
+          {
+            "type": "heal",
+            "power": 30,
+            "duration": 2
+          }
+        ]
+      },
+      {
+        "id": "guard",
+        "name": "Guard",
+        "description": "Halve incoming damage until your next turn.",
+        "target": "self",
+        "cost": 0,
+        "effects": [
+          {
+            "type": "guard",
+            "power": 0,
+            "duration": 2
+          }
+        ]
+      },
+      {
+        "id": "venom",
+        "name": "Venom",
+        "description": "Poison an enemy for three turns.",
+        "target": "enemy",
+        "cost": 4,
+        "effects": [
+          {
+            "type": "poison",
+            "power": 7,
+            "duration": 3
+          }
+        ]
+      }
+    ],
+    "encounters": [
+      {
+        "id": "forest-road",
+        "name": "The forest road",
+        "description": "Beneath the old canopy, something stirs. Protect the road to Alderfell.",
+        "party": ["rowan", "lyra"],
+        "enemies": ["mossling", "thorn-wolf"]
+      },
+      {
+        "id": "moss-grove",
+        "name": "The moss grove",
+        "description": "A small encounter for trying new skills.",
+        "party": ["rowan", "lyra"],
+        "enemies": ["mossling"]
+      }
+    ],
+    "formatVersion": 1,
+    "startingEncounter": "forest-road",
+    "mods": [
+      {
+        "actors": [
+          {
+            "id": "mossling",
+            "name": "Ancient Mossling",
+            "role": "Forest guardian",
+            "maxHp": 120,
+            "maxMp": 20,
+            "attack": 20,
+            "defense": 8,
+            "speed": 13,
+            "abilities": ["strike", "venom"]
+          }
+        ],
+        "abilities": [],
+        "encounters": [],
+        "id": "hard-mode",
+        "name": "Wildwood awakened",
+        "version": "1.0.0",
+        "description": "A sample content override: stronger mosslings. Enable it to try mod composition.",
+        "enabled": false,
+        "requires": []
+      }
+    ]
+  }
+}

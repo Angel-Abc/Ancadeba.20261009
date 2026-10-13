@@ -30,13 +30,18 @@ export default defineConfig({
       name: 'Editor API',
       command: 'pnpm --filter @ancadeba/editor-server dev',
       url: `${e2eUrls.server}/api/health`,
-      env: { HOST: '127.0.0.1', PORT: String(e2ePorts.server) },
+      env: {
+        HOST: '127.0.0.1',
+        PORT: String(e2ePorts.server),
+        PROJECT_FILE: '../../test-results/e2e-project.json',
+      },
       reuseExistingServer: false,
     },
     {
       name: 'Engine',
       command: `pnpm --filter @ancadeba/engine dev --host 127.0.0.1 --port ${e2ePorts.engine} --strictPort`,
       url: e2eUrls.engine,
+      env: { EDITOR_API_TARGET: e2eUrls.server },
       reuseExistingServer: false,
     },
     {

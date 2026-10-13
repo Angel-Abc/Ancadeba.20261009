@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { Project } from '@ancadeba/schemas'
-import { getProjectLabel } from '@ancadeba/utilities'
 import type { ProjectLoader } from './projectLoader'
+import { Workspace } from './Workspace'
 
 interface AppProps {
   projectLoader: ProjectLoader
@@ -36,8 +36,11 @@ export function App({ projectLoader }: AppProps) {
     setAttempt((previous) => previous + 1)
   }
 
+  if (state.status === 'ready')
+    return <Workspace initialProject={state.project} loader={projectLoader} />
+
   return (
-    <main>
+    <main className='loading-screen'>
       <h1>Ancadeba Editor</h1>
       {state.status === 'loading' && <p role='status'>Loading project…</p>}
       {state.status === 'error' && (
@@ -46,12 +49,6 @@ export function App({ projectLoader }: AppProps) {
           <button type='button' onClick={retry}>
             Retry
           </button>
-        </>
-      )}
-      {state.status === 'ready' && (
-        <>
-          <p>{getProjectLabel(state.project)}</p>
-          <p>The editor workspace is ready.</p>
         </>
       )}
     </main>

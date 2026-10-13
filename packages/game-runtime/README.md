@@ -1,8 +1,33 @@
 # Game runtime
 
-`@ancadeba/game-runtime` is the shared package for game execution code used by
-the engine application and editor previews. It currently provides the package
-scaffold and an empty public entry point, ready for runtime implementation.
+`@ancadeba/game-runtime` executes the same turn-based combat in the player and
+editor playtest. It is synchronous, deterministic, and independent of React,
+browser APIs, input, timers, HTTP, and persistent storage.
+
+```ts
+import { starterGame } from '@ancadeba/schemas'
+import { BattleRuntime } from '@ancadeba/game-runtime'
+
+const runtime = new BattleRuntime(starterGame)
+let battle = runtime.start(starterGame.startingEncounter)
+battle = runtime.act(battle, runtime.chooseAction(battle))
+const snapshot = runtime.save(battle)
+battle = runtime.restore(snapshot)
+```
+
+`resolveContent(game)` composes enabled mods and validates references.
+`BattleRuntime` validates registered effects and zero-cost fallback abilities.
+Actions clone battle state, validate ownership, MP and targets, then apply
+effects and advance the turn. Call `abilities`, `targets`, `actor`, and `current`
+to render choices. Call `chooseAction` for the injected enemy strategy.
+
+Effect handling and AI are separate modules. Inject an `EffectRegistry` and
+`BattleStrategy` to customize rules without changing the battle UI. Use
+`createDefaultEffects().register(...)` for new effect types or `.replace(...)`
+for an existing rule. JSON mods extend data; they do not execute code.
+
+See [the architecture guide](../../docs/architecture.md) for complete examples,
+composition order, persistence boundaries, battle rules, and current scope.
 
 Place implementation modules in `src` and export their public APIs from
 `src/index.ts`. The engine and editor UI both declare this package as a

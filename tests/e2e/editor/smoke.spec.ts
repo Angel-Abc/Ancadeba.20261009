@@ -6,7 +6,7 @@ test('loads the editor and its sample project', async ({ page }) => {
 
   const response = await projectResponse
   expect(response.status()).toBe(200)
-  expect(await response.json()).toEqual({
+  expect(await response.json()).toMatchObject({
     project: { id: 'basic-game', name: 'Basic Game' },
     label: 'Basic Game (basic-game)',
   })

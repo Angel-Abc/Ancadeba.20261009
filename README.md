@@ -1,7 +1,8 @@
 # Ancadeba
 
-A pnpm workspace with two TypeScript/React applications, a small TypeScript/Node
-server, and shared game runtime, schemas, and utilities packages.
+A modular turn-based RPG toolkit with a playable React engine, a visual content
+editor, a local project API, and shared TypeScript packages. The editor playtest
+and player use the same deterministic battle runtime.
 
 ## Requirements
 
@@ -17,21 +18,52 @@ pnpm dev
 
 `pnpm dev` starts all three applications:
 
-| Workspace | Purpose | Development URL |
-| --- | --- | --- |
-| `apps/engine` | React engine application | http://localhost:5173 |
-| `apps/editor-ui` | React editor application | http://localhost:5174 |
-| `apps/editor-server` | Node HTTP API | http://127.0.0.1:3000 |
-| `packages/game-runtime` | Shared game execution package scaffold | Shared package |
-| `packages/schemas` | Zod schemas and inferred TypeScript types | Shared package |
-| `packages/utilities` | Shared functions consuming schema types | Shared package |
+| Workspace               | Purpose                                           | Development URL       |
+| ----------------------- | ------------------------------------------------- | --------------------- |
+| `apps/engine`           | Game player with battle saves                     | http://localhost:5173 |
+| `apps/editor-ui`        | Content editor and live playtest                  | http://localhost:5174 |
+| `apps/editor-server`    | Project storage and validation API                | http://127.0.0.1:3000 |
+| `packages/game-runtime` | Combat rules, effects, AI, mod composition, saves | Shared package        |
+| `packages/game-ui`      | Shared battle renderer and theme                  | Shared package        |
+| `packages/schemas`      | Zod schemas and inferred TypeScript types         | Shared package        |
+| `packages/utilities`    | Shared functions consuming schema types           | Shared package        |
 
 Use `pnpm dev:engine`, `pnpm dev:editor-ui`, or `pnpm dev:editor-server` to
 start one application. The editor UI development server proxies `/api` requests
-to the editor server. The API exposes `GET /api/health` and `GET /api/project`.
-The engine renders sample project data locally. The editor loads its project
-from `/api/project`, validates it with the shared project schema, and displays
-loading and error states with a retry option.
+to the editor server. The API exposes `GET /api/health`, `GET /api/project`, and
+`PUT /api/project`. The API starts with the included forest adventure until a
+project is saved. The editor validates project data, shows loading and retry
+states, and keeps changes as a draft until **Save project** is selected.
+
+Open the editor, select **Actors**, and tune Rowan's HP or abilities. Use
+**Playtest** to play the draft immediately. Author abilities by combining damage,
+healing, guard, and poison effects, and create encounters with up to six actors
+per side. **Undo** and **Redo** keep the last 50 draft changes. Deleting a
+referenced definition produces a validation error and disables saving until
+references are repaired or the deletion is undone.
+
+The **Mods** tab imports, enables, orders, removes, and exports JSON content
+packs. Enable **Wildwood awakened** to try the included actor override. Use
+**Project JSON** to edit complete definitions and apply validated changes, or
+**Import project** / **Export JSON** to share a game.
+
+In the engine, choose an encounter and select an ability followed by a target.
+Enemies act automatically. **Save battle** and **Load battle** store a snapshot
+in this browser, separately for each project and encounter. Battle saves require
+the same resolved content. Use **Load editor project** to play the latest saved
+editor project, or **Open game JSON** to play an exported game.
+
+Projects persist atomically to `data/project.json` at the repository root. The
+`PROJECT_FILE` process environment variable can select another path (relative
+paths resolve from the editor-server workspace). Revisions prevent stale tabs
+from overwriting more recent saves. A conflict keeps the draft intact; export
+it before using **Reload saved project** if you want to keep both versions.
+The repository supports one local API process per project file. For separate
+development instances, give each API its own `PROJECT_FILE` when saving.
+
+See [the architecture and extension guide](docs/architecture.md) for runtime
+APIs, custom effect handlers, injected enemy strategies, and mod rules. Portable
+examples are in `sample-games/alderfell` and `sample-games/mods`.
 
 The server accepts `HOST` and `PORT` environment variables, defaulting to
 `127.0.0.1` and `3000`. The editor UI accepts the `EDITOR_API_TARGET` environment
@@ -106,11 +138,11 @@ Playwright tests live in `tests/e2e/engine` and `tests/e2e/editor` and use
 
 The runner starts its own development instances on these ports:
 
-| Instance | Playwright port | `pnpm dev` port |
-| --- | --- | --- |
-| Engine | 5273 | 5173 |
-| Editor UI | 5274 | 5174 |
-| Editor API | 3100 | 3000 |
+| Instance   | Playwright port | `pnpm dev` port |
+| ---------- | --------------- | --------------- |
+| Engine     | 5273            | 5173            |
+| Editor UI  | 5274            | 5174            |
+| Editor API | 3100            | 3000            |
 
 The test editor's proxy targets the test API. Playwright refuses to reuse an
 existing server and stops only the instances it starts. If a test port is
@@ -133,9 +165,10 @@ Run just one application with `pnpm test:e2e --project=engine` or
 `pnpm test:e2e:report` to inspect the HTML report. Failed tests retain traces and
 screenshots under `test-results`; generated artifacts are ignored by Git.
 
-The initial tests cover both application screens, browser errors, and the
-editor's API proxy. Add editing and gameplay scenarios as those features become
-available.
+Browser tests cover editing, undo/redo, mod overrides, project import/export,
+revision conflicts, battle victories and saves, API errors, and desktop/mobile
+layouts. The test API uses `test-results/e2e-project.json` to isolate its saves
+from the user's project. Playwright clears test artifacts at the start of a run.
 
 ## VS Code formatting
 
@@ -150,9 +183,10 @@ dependency after `pnpm install`.
 
 ## Sharing code
 
-The engine and editor UI also depend on `@ancadeba/game-runtime`. Its scaffold
-is ready for reusable game execution code and editor previews. Export runtime
-APIs from `packages/game-runtime/src/index.ts` and place its tests under
+The engine and editor UI depend on `@ancadeba/game-runtime` and
+`@ancadeba/game-ui`. Combat logic has no React, DOM, network, timer, or storage
+dependencies. The UI injects timing and storage around the synchronous runtime.
+Export runtime APIs from `packages/game-runtime/src/index.ts` and place tests under
 `tests/packages/game-runtime`. See `packages/game-runtime/README.md` for package
 boundaries and build commands.
 
@@ -170,7 +204,11 @@ logger factories, and message formatter. Applications can import these shared
 APIs directly from the package root:
 
 ```ts
-import { Container, loggerFactories, type LoggerServices } from '@ancadeba/utilities'
+import {
+  Container,
+  loggerFactories,
+  type LoggerServices,
+} from '@ancadeba/utilities'
 
 const container = new Container<LoggerServices>(loggerFactories)
 const logger = container.resolve('logger')
@@ -183,6 +221,5 @@ a separate package build process. Production Node builds resolve the compiled
 shared JavaScript and declarations instead. To build just the server and its
 dependencies, run `pnpm --filter @ancadeba/editor-server... build`.
 
-`docs` and `sample-games` are reserved for documentation and game assets. They
-are not workspace packages; add a package manifest and a workspace glob if a
-sample game later needs its own tooling.
+`docs` and `sample-games` contain documentation and portable game/mod data. They
+are not workspace packages.

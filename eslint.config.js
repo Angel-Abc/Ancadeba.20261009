@@ -27,12 +27,18 @@ export default defineConfig([
     },
   },
   {
-    files: ['apps/{engine,editor-ui}/src/**/*.{ts,tsx}'],
+    files: [
+      'apps/{engine,editor-ui}/src/**/*.{ts,tsx}',
+      'packages/game-ui/src/**/*.{ts,tsx}',
+    ],
     languageOptions: { globals: globals.browser },
     plugins: { 'react-hooks': reactHooks, 'react-refresh': reactRefresh },
     rules: {
       ...reactHooks.configs.flat.recommended.rules,
-      'react-refresh/only-export-components': ['error', { allowConstantExport: true }],
+      'react-refresh/only-export-components': [
+        'error',
+        { allowConstantExport: true },
+      ],
     },
   },
 ])
